@@ -19,13 +19,15 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 	static int ROWS = 15;
 	static int COLS = 10;
 	static int baseRow = 0; // the matching row with the footer
-	static int maxShownRows;
 	static int startEmptyRows ;
-	static int footerRatio = 15 ;//15% or screen height
+	static int footerRatio = 20 ;//15% or screen height
 	static int startEmptyRatio = 40; //40% of the screen height
 	
 	static int footerHeight ;
-	static int DIAM = 65; //bubble diameter  
+	static int drawOffset ;
+	static int DIAM = 65; //bubble diameter
+	
+	Point bullet;
 	Bitmap redBitmap;
 	Bitmap bubblesResized; 
 	
@@ -43,15 +45,17 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 	void initGame(int rows){
 		DIAM = displayDims.x/COLS;
 		footerHeight = (int) (displayDims.y*footerRatio/100.0);
-		maxShownRows = displayDims.y - footerHeight ;
-		startEmptyRows  = (int) (displayDims.y*startEmptyRatio/100.0);
 		
+		drawOffset = displayDims.y - footerHeight ;
+		startEmptyRows  = (int) (displayDims.y*startEmptyRatio/100.0/DIAM);
+		
+		System.out.println(startEmptyRows);
 		Random random = new Random();
 		
 		map = new int [rows][COLS];
 		for (int i = 0; i < startEmptyRows ; i++) 
 			Arrays.fill(map[i], -1);
-		for (int i = 0; i < map.length; i++) {
+		for (int i = startEmptyRows; i < map.length; i++) {
 			for (int j = 0; j < map[0].length; j++) {
 				map[i][j] = random.nextInt(supportedColors); 
 			}
@@ -70,6 +74,8 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 		DisplayMetrics metrics = context.getResources().getDisplayMetrics();
 		displayDims = new Point(metrics.widthPixels, metrics.heightPixels);
 		
+		
+		initGame(15);
 		bubblesResized = Bitmap.createScaledBitmap(redBitmap, DIAM, DIAM, false);
 	}
 
@@ -107,11 +113,13 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 	
 	@Override
 	protected void onDraw(Canvas canvas) {
-		for (int i = 0; i < ROWS; i++) 
+		for (int i = baseRow; i < ROWS; i++) 
 			for (int j = 0; j < COLS -(i&1); j++){
 				if (map[i][j] == -1)
 					continue ;
-				canvas.drawBitmap(bubblesResized,j*DIAM+((i&1)==1?DIAM/2:0), i*(DIAM-5),null);
+				//TODO 	switch on map[i][j] to choose color 
+				canvas.drawBitmap(bubblesResized,j*DIAM+((i&1)==1?DIAM/2:0), drawOffset - i*(DIAM-5),  null);
+//				canvas.drawBitmap(bubblesResized,j*DIAM+((i&1)==1?DIAM/2:0), i*(DIAM-5),null);
 				
 			} 
 			
