@@ -12,6 +12,8 @@ import android.util.DisplayMetrics;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.embo.bubble_shooter_mine.R;
+
 public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 
 	GameLoop mainLoopThread;
@@ -27,6 +29,7 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 	static int drawOffset ;
 	static int DIAM = 65; //bubble diameter
 	
+	int bulletColor;
 	Point bullet;
 	Bitmap redBitmap;
 	Bitmap bubblesResized; 
@@ -121,9 +124,10 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 				canvas.drawBitmap(bubblesResized,j*DIAM+((i&1)==1?DIAM/2:0), drawOffset - i*(DIAM-5),  null);
 //				canvas.drawBitmap(bubblesResized,j*DIAM+((i&1)==1?DIAM/2:0), i*(DIAM-5),null);
 				
-			} 
-			
+			}
 		
+		// TODO
+//		if(bullet.x != -1)
+//			draw bullet
 	}
-
 }
