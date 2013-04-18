@@ -31,9 +31,9 @@ public class GameLoop extends Thread {
 		sHolder = game.getHolder();
 		gamePanel = game;
 		q = new LinkedList<Integer>();
-		neighborCOLS = new int[gamePanel.map.length* gamePanel.map[0].length];
-		neighborROWS = new int[gamePanel.map.length* gamePanel.map[0].length];
-		visited=  new boolean[gamePanel.map.length][gamePanel.map[0].length];
+//		neighborCOLS = new int[gamePanel.map.length* gamePanel.map[0].length];
+//		neighborROWS = new int[gamePanel.map.length* gamePanel.map[0].length];
+//		visited=  new boolean[gamePanel.map.length][gamePanel.map[0].length];
 	}
 
 	@SuppressLint("WrongCall")
@@ -52,7 +52,7 @@ public class GameLoop extends Thread {
 				synchronized (sHolder)
 				{
 					// update game state
-					updateGame();
+//					updateGame();
 					// draws the canvas on the panel
 					gamePanel.onDraw(canvas);
 				}
@@ -66,7 +66,7 @@ public class GameLoop extends Thread {
 
 		}
 	}
-
+/*
 	void fireBullet()
 	{
 		// TODO not sure about this dimensions
@@ -181,5 +181,5 @@ public class GameLoop extends Thread {
 			}
 		}
 	}
-
+*/
 }

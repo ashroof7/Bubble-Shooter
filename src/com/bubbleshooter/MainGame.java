@@ -8,7 +8,9 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -34,6 +36,7 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 	
 	Point bulletLoc;
 	Point bulletInitLoc;
+	int bulletColor;
 	Bitmap redBitmap;
 	Bitmap bubblesResized; 
 	
@@ -52,6 +55,7 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 	// 0 is the next to be fired 
 	int nextBubbleColor[] = new int[3];
 	Point nextBubbleLoc[] = new Point[3];
+	Random random;
 	
 	//FIXME profile the performance for the background image
 	@SuppressWarnings("deprecation")
@@ -66,7 +70,7 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 		
 		
 		System.out.println(startEmptyRows);
-		Random random = new Random();
+		random = new Random();
 		
 		int sdk = android.os.Build.VERSION.SDK_INT;
 		if(sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
@@ -152,19 +156,16 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 	int delta = 1;
 	boolean isfired = false ;
 	int fireCnt ; 
-	int v = 5; //firing velocity pixel/frame
+	int v = 1; //firing velocity pixel/frame
+	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if (event.getAction() == MotionEvent.ACTION_DOWN){
 			//touch down
-			
-			
-			
 			if (event.getY() > bulletInitLoc.y)
 				return false;
 			
 			slope = (bulletInitLoc.y-event.getY())/(bulletInitLoc.x-event.getX())*1.0;
-			System.out.println(slope);
 			isfired = true;
 			fireCnt = 1;
 			bulletLoc.x = bulletInitLoc.x + ((bulletInitLoc.x > event.getX())? -v*fireCnt:v*fireCnt);
@@ -186,7 +187,8 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 	
 	@Override
 	protected void onDraw(Canvas canvas) {
-		canvas.restore();
+		canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+		
 		//Draw the grid
 		for (int i = baseRow; i < ROWS; i++){ 
 			for (int j = 0; j < COLS -(i&1); j++){
@@ -201,23 +203,34 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 		for (int i = 0; i < nextBubbleColor.length; i++) 
 			canvas.drawBitmap(bubblesResized, nextBubbleLoc[i].x, nextBubbleLoc[i].y, null);
 		
+		
 		//TODO move to main thread: run
 		if (isfired){
 			bulletLoc.x = bulletLoc.x + ((bulletInitLoc.x > bulletLoc.x)? -v*fireCnt:v*fireCnt);
 			bulletLoc.y = (int) ((bulletInitLoc.x-bulletLoc.x)* -slope) + bulletInitLoc.y;
-			
-			Log.v("onDraw", bulletLoc.toString());
-			if (bulletLoc.x > displayDims.x-DIAM || bulletLoc.x < 0){
+			int x,y;
+//			Log.v("onDraw", bulletLoc.toString());
+			if (bulletLoc.x > displayDims.x-DIAM || bulletLoc.x < 0 ){
+				slope=-slope;
+			}else if (map[y = (drawOffset-bulletLoc.y)/DIAM ][ x = bulletLoc.x/DIAM ]>-1){
+				//TODO insert the bubble into map
+				map[(drawOffset-bulletLoc.y)/DIAM + 1][bulletLoc.x/DIAM] = bulletColor;
+//				canvas.drawBitmap(bubblesResized,x*DIAM+((y&1)==1?DIAM/2:0), drawOffset - y*(DIAM-5),  null);
 				isfired = false ;
+				fireCnt = 0;
 				bulletLoc.x = bulletInitLoc.x;
 				bulletLoc.y = bulletInitLoc.y;
 			}
-			
 		}
 		
 		// Draw the bullet bubble
 		canvas.drawBitmap(bubblesResized, bulletLoc.x,bulletLoc.y, null);
-		
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 
