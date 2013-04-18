@@ -153,26 +153,26 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 	
 	
 	double slope;
-	int delta = 1;
+	int dx,dy;
 	boolean isfired = false ;
-	int fireCnt ; 
-	int v = 1; //firing velocity pixel/frame
+	int v = 15; //firing velocity pixel/frame
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if (event.getAction() == MotionEvent.ACTION_DOWN){
 			//touch down
-			if (event.getY() > bulletInitLoc.y)
+			if (isfired || event.getY() > bulletInitLoc.y)
 				return false;
 			
-			slope = (bulletInitLoc.y-event.getY())/(bulletInitLoc.x-event.getX())*1.0;
 			isfired = true;
-			fireCnt = 1;
-			bulletLoc.x = bulletInitLoc.x + ((bulletInitLoc.x > event.getX())? -v*fireCnt:v*fireCnt);
-			bulletLoc.y = (int) ((bulletInitLoc.x-bulletLoc.x)* -slope) + bulletInitLoc.y;
-			System.out.println("("+event.getX()+", "+event.getY()+")");
-			System.out.println(bulletInitLoc);
-			System.out.println(bulletLoc);
+			int xChange = (int) (event.getX() - bulletInitLoc.x);
+			int yChange = (int) (event.getY() - bulletInitLoc.y);
+			int time = (int) (Math.sqrt(xChange*xChange + yChange*yChange)/v);
+			dx = xChange/time;
+			dy = yChange/time;
+			
+			bulletLoc.x =  bulletInitLoc.x + dx;
+			bulletLoc.y =  bulletInitLoc.y + dy;
 			return true ;
 		}
 		else if (event.getAction() == MotionEvent.ACTION_UP){
@@ -206,10 +206,9 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 		
 		//TODO move to main thread: run
 		if (isfired){
-			bulletLoc.x = bulletLoc.x + ((bulletInitLoc.x > bulletLoc.x)? -v*fireCnt:v*fireCnt);
-			bulletLoc.y = (int) ((bulletInitLoc.x-bulletLoc.x)* -slope) + bulletInitLoc.y;
-			int x,y;
-//			Log.v("onDraw", bulletLoc.toString());
+			bulletLoc.x += dx;
+			bulletLoc.y += dy;
+			int y,x;
 			if (bulletLoc.x > displayDims.x-DIAM || bulletLoc.x < 0 ){
 				slope=-slope;
 			}else if (map[y = (drawOffset-bulletLoc.y)/DIAM ][ x = bulletLoc.x/DIAM ]>-1){
@@ -217,7 +216,6 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 				map[(drawOffset-bulletLoc.y)/DIAM + 1][bulletLoc.x/DIAM] = bulletColor;
 //				canvas.drawBitmap(bubblesResized,x*DIAM+((y&1)==1?DIAM/2:0), drawOffset - y*(DIAM-5),  null);
 				isfired = false ;
-				fireCnt = 0;
 				bulletLoc.x = bulletInitLoc.x;
 				bulletLoc.y = bulletInitLoc.y;
 			}
