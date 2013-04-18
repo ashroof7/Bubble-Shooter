@@ -1,7 +1,6 @@
 package com.bubbleshooter;
 
 import java.util.Arrays;
-import java.util.Random;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -41,36 +40,33 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 	
 	int map[][];
 	
+	static final int supportedColors = 5;
 	
 	static final int ORANGE = 0;
 	static final int RED = 1;
 	static final int PINK = 2;
 	static final int PURPLE = 3;
 	static final int GREEN = 4;
+	Bitmap[] bubbles = new Bitmap[supportedColors]; // scaled bubbles
+	Bitmap[] rawBubbles = new Bitmap[supportedColors]; // colored bubbles just read from files 
 	
-	static final int supportedColors = 5;
-	
+	Bitmap background;
 	
 	// 0 is the next to be fired 
 	int nextBubbleColor[] = new int[3];
 	Point nextBubbleLoc[] = new Point[3];
-	Random random;
 	
 	//FIXME profile the performance for the background image
 	@SuppressWarnings("deprecation")
 	@SuppressLint("NewApi")
 	void initGame(int rows){
+		
 		// adjusting vars
 		DIAM = displayDims.x/COLS;
 		footerHeight = (int) (displayDims.y*footerRatio/100.0);
 		drawOffset = displayDims.y - footerHeight ;
 		startEmptyRows  = (int) (displayDims.y*startEmptyRatio/100.0/DIAM);
 
-		
-		
-		System.out.println(startEmptyRows);
-		random = new Random();
-		
 		int sdk = android.os.Build.VERSION.SDK_INT;
 		if(sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
 			this.setBackgroundDrawable(getResources().getDrawable(R.drawable.background_1));
@@ -82,24 +78,23 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 		map = new int [rows][COLS];
 		for (int i = 0; i < startEmptyRows ; i++) 
 			Arrays.fill(map[i], -1);
-		for (int i = startEmptyRows; i < map.length; i++) {
-			for (int j = 0; j < map[0].length; j++) {
-				map[i][j] = random.nextInt(supportedColors); 
-			}
-		}	
+		for (int i = startEmptyRows; i < map.length; i++) 
+			for (int j = 0; j < map[0].length; j++) 
+				map[i][j] =(int) (Math.random()*supportedColors); 
 		
 		// adjust location and color of the 3 next bubbles to shoot
 		int gap = displayDims.x/40;
 		int y = drawOffset + (footerHeight-DIAM)/2;
 		int x = (displayDims.x-gunWidth)/2 - 3*gap;
 		for (int i = 0; i < nextBubbleColor.length; i++) {
-			nextBubbleColor[i] = random.nextInt(supportedColors);
+			nextBubbleColor[i] = (int) (Math.random()*supportedColors);
 			nextBubbleLoc[i] = new Point(x - i*(DIAM+gap), y);
 		}
 		
 		// initial bullet bubble location
 		bulletInitLoc 	= new Point((displayDims.x - DIAM)/2, y);
 		bulletLoc 		= new Point((displayDims.x - DIAM)/2, y);
+		bulletColor =  (int) (Math.random()*supportedColors);
 		mainLoopThread.initGame();
 	}
 	
@@ -109,14 +104,20 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 		getHolder().addCallback(this);
 		setFocusable(true);
 		
-		redBitmap = BitmapFactory.decodeResource(getResources(),R.drawable.red);
-		//FIXME
 		DisplayMetrics metrics = context.getResources().getDisplayMetrics();
 		displayDims = new Point(metrics.widthPixels, metrics.heightPixels);
-		
-		
 		initGame(15);
-		bubblesResized = Bitmap.createScaledBitmap(redBitmap, DIAM, DIAM, false);
+		
+		//reading raw images
+		rawBubbles[ORANGE] 	= BitmapFactory.decodeResource(getResources(),R.drawable.orange);
+		rawBubbles[RED] 	= BitmapFactory.decodeResource(getResources(),R.drawable.red);
+		rawBubbles[PINK] 	= BitmapFactory.decodeResource(getResources(),R.drawable.pink);
+		rawBubbles[PURPLE] 	= BitmapFactory.decodeResource(getResources(),R.drawable.purple);
+		rawBubbles[GREEN]	= BitmapFactory.decodeResource(getResources(),R.drawable.green);
+		
+		// scaled images 
+		for (int i = 0; i < supportedColors; i++) 
+			bubbles[i] = Bitmap.createScaledBitmap(rawBubbles[i], DIAM, DIAM, false);
 	}
 
 	@Override
@@ -150,10 +151,9 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 	}
 	
 	
-	
 	boolean isfired = false ;
 	int v = 25; //firing velocity pixel/frame
-	int dx,dy;
+	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if (event.getAction() == MotionEvent.ACTION_DOWN){
@@ -166,20 +166,11 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 			int yChange = (int) (event.getY() - bulletInitLoc.y);
 			// time is the measured in FPS (number of game loop executions)
 			int time = (int) (Math.sqrt(xChange*xChange + yChange*yChange)/v);
-
-			//raed -- i commented your lines just to see the effect of the last change 
-			
-//			mainLoopThread.speedX = xChange/time;
-//			mainLoopThread.speedY = yChange/time;
-//			bulletLoc.x =  bulletInitLoc.x + mainLoopThread.speedX;
-//			bulletLoc.y =  bulletInitLoc.y + mainLoopThread.speedY;
-//			return true ;
-			
-			
-			dx = xChange/time;
-			dy = yChange/time;
-			bulletLoc.x =  bulletInitLoc.x + dx;
-			bulletLoc.y =  bulletInitLoc.y + dy;
+ 
+			mainLoopThread.speedX = xChange/time;
+			mainLoopThread.speedY = yChange/time;
+			bulletLoc.x =  bulletInitLoc.x + mainLoopThread.speedX;
+			bulletLoc.y =  bulletInitLoc.y + mainLoopThread.speedY;
 			return true ;
 			
 		}
@@ -191,59 +182,24 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 		return false;
 	}	
 	
-
-	
 	@Override
 	protected void onDraw(Canvas canvas) {
 		canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
 		
 		//Draw the grid
-		for (int i = baseRow; i < ROWS; i++){ 
-			for (int j = 0; j < COLS -(i&1); j++){
+		for (int i = baseRow; i < ROWS; i++) 
+			for (int j = 0; j < COLS -(i&1); j++)
 				if (map[i][j] == -1)
 					continue ;
-				//TODO 	switch on map[i][j] to choose color 
-				canvas.drawBitmap(bubblesResized,j*DIAM+((i&1)==1?DIAM/2:0), drawOffset - i*(DIAM-5),  null);
-			}
-		}
+				else 
+				canvas.drawBitmap(bubbles[map[i][j]],j*DIAM+((i&1)==1?DIAM/2:0), drawOffset - i*(DIAM-5),  null);
 		
 		// Draw the next to shoot bubbles
 		for (int i = 0; i < nextBubbleColor.length; i++) 
-			canvas.drawBitmap(bubblesResized, nextBubbleLoc[i].x, nextBubbleLoc[i].y, null);
-		
-		
-		//TODO move to main thread: run
-		if (isfired){
-			bulletLoc.x += dx;
-			bulletLoc.y += dy;
-			int y,x;
-			System.out.println(((drawOffset-bulletLoc.y)/DIAM)+" "+(bulletLoc.x/DIAM));
-			
-			if (bulletLoc.x > displayDims.x-DIAM || bulletLoc.x < 0 ){
-				dx = -dx; 
-			}else if (bulletLoc.y < 0){
-				dy = -dy;
-			
-			}else if (map[y = (drawOffset-bulletLoc.y +DIAM/2)/DIAM +1][ x = (bulletLoc.x+DIAM/2)/DIAM ]>-1){
-				//TODO insert the bubble into map
-				map[(drawOffset-bulletLoc.y+DIAM/2)/DIAM][bulletLoc.x/DIAM] = bulletColor;
-//				canvas.drawBitmap(bubblesResized,x*DIAM+((y&1)==1?DIAM/2:0), drawOffset - y*(DIAM-5),  null);
-				isfired = false ;
-				bulletLoc.x = bulletInitLoc.x;
-				bulletLoc.y = bulletInitLoc.y;
-				//TODO call FLOODFILL ALGO
-			}
-		}
+			canvas.drawBitmap(bubbles[nextBubbleColor[i]], nextBubbleLoc[i].x, nextBubbleLoc[i].y, null);
 		
 		// Draw the bullet bubble
-		canvas.drawBitmap(bubblesResized, bulletLoc.x,bulletLoc.y, null);
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+		canvas.drawBitmap(bubbles[bulletColor], bulletLoc.x,bulletLoc.y, null);
 	}
 
 }
