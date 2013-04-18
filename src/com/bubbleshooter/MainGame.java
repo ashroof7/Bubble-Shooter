@@ -209,11 +209,15 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 			bulletLoc.x += dx;
 			bulletLoc.y += dy;
 			int y,x;
+			System.out.println(((drawOffset-bulletLoc.y)/DIAM)+" "+(bulletLoc.x/DIAM));
 			if (bulletLoc.x > displayDims.x-DIAM || bulletLoc.x < 0 ){
-				slope=-slope;
+				dx = -dx; 
+			}else if (bulletLoc.y < 0){
+				dy = -dy;
+			
 			}else if (map[y = (drawOffset-bulletLoc.y)/DIAM ][ x = bulletLoc.x/DIAM ]>-1){
 				//TODO insert the bubble into map
-				map[(drawOffset-bulletLoc.y)/DIAM + 1][bulletLoc.x/DIAM] = bulletColor;
+				map[(drawOffset-bulletLoc.y)/DIAM - 1][bulletLoc.x/DIAM] = bulletColor;
 //				canvas.drawBitmap(bubblesResized,x*DIAM+((y&1)==1?DIAM/2:0), drawOffset - y*(DIAM-5),  null);
 				isfired = false ;
 				bulletLoc.x = bulletInitLoc.x;
