@@ -52,6 +52,7 @@ public class GameLoop extends Thread {
 				synchronized (sHolder)
 				{
 					// update game state
+					updateGame();
 					// draws the canvas on the panel
 					gamePanel.onDraw(canvas);
 				}
@@ -68,7 +69,8 @@ public class GameLoop extends Thread {
 
 	void fireBullet()
 	{
-		gamePanel.bullet.x = gamePanel.displayDims.x;
+		// TODO not sure about this dimensions
+		gamePanel.bullet.x = gamePanel.displayDims.x/2;
 		gamePanel.bullet.y = MainGame.footerHeight;
 	}
 
