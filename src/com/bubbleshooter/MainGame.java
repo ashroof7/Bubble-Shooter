@@ -12,11 +12,11 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.animation.TranslateAnimation;
+
+import com.embo.bubble_shooter_mine.R;
 
 public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 
@@ -101,7 +101,7 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 		// initial bullet bubble location
 		bulletInitLoc 	= new Point((displayDims.x - DIAM)/2, y);
 		bulletLoc 		= new Point((displayDims.x - DIAM)/2, y);
-	
+		mainLoopThread.initGame();
 	}
 	
 	public MainGame(Context context) {
@@ -152,8 +152,6 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 	
 	
 	
-	double slope;
-	int dx,dy;
 	boolean isfired = false ;
 	int v = 15; //firing velocity pixel/frame
 	
@@ -168,11 +166,11 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 			int xChange = (int) (event.getX() - bulletInitLoc.x);
 			int yChange = (int) (event.getY() - bulletInitLoc.y);
 			int time = (int) (Math.sqrt(xChange*xChange + yChange*yChange)/v);
-			dx = xChange/time;
-			dy = yChange/time;
+			mainLoopThread.speedX = xChange/time;
+			mainLoopThread.speedY = yChange/time;
 			
-			bulletLoc.x =  bulletInitLoc.x + dx;
-			bulletLoc.y =  bulletInitLoc.y + dy;
+			bulletLoc.x =  bulletInitLoc.x + mainLoopThread.speedX;
+			bulletLoc.y =  bulletInitLoc.y + mainLoopThread.speedY;
 			return true ;
 		}
 		else if (event.getAction() == MotionEvent.ACTION_UP){
@@ -205,21 +203,21 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 		
 		
 		//TODO move to main thread: run
-		if (isfired){
-			bulletLoc.x += dx;
-			bulletLoc.y += dy;
-			int y,x;
-			if (bulletLoc.x > displayDims.x-DIAM || bulletLoc.x < 0 ){
-				slope=-slope;
-			}else if (map[y = (drawOffset-bulletLoc.y)/DIAM ][ x = bulletLoc.x/DIAM ]>-1){
-				//TODO insert the bubble into map
-				map[(drawOffset-bulletLoc.y)/DIAM + 1][bulletLoc.x/DIAM] = bulletColor;
-//				canvas.drawBitmap(bubblesResized,x*DIAM+((y&1)==1?DIAM/2:0), drawOffset - y*(DIAM-5),  null);
-				isfired = false ;
-				bulletLoc.x = bulletInitLoc.x;
-				bulletLoc.y = bulletInitLoc.y;
-			}
-		}
+//		if (isfired){
+//			bulletLoc.x += dx;
+//			bulletLoc.y += dy;
+//			int y,x;
+//			if (bulletLoc.x > displayDims.x-DIAM || bulletLoc.x < 0 ){
+//				slope=-slope;
+//			}else if (map[y = (drawOffset-bulletLoc.y)/DIAM ][ x = bulletLoc.x/DIAM ]>-1){
+//				//TODO insert the bubble into map
+//				map[(drawOffset-bulletLoc.y)/DIAM + 1][bulletLoc.x/DIAM] = bulletColor;
+////				canvas.drawBitmap(bubblesResized,x*DIAM+((y&1)==1?DIAM/2:0), drawOffset - y*(DIAM-5),  null);
+//				isfired = false ;
+//				bulletLoc.x = bulletInitLoc.x;
+//				bulletLoc.y = bulletInitLoc.y;
+//			}
+//		}
 		
 		// Draw the bullet bubble
 		canvas.drawBitmap(bubblesResized, bulletLoc.x,bulletLoc.y, null);
