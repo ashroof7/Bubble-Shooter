@@ -50,7 +50,7 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 	Bitmap[] bubbles = new Bitmap[supportedColors]; // scaled bubbles
 	Bitmap[] rawBubbles = new Bitmap[supportedColors]; // colored bubbles just read from files 
 	
-	Bitmap background;
+	
 	
 	// 0 is the next to be fired 
 	int nextBubbleColor[] = new int[3];
@@ -62,11 +62,12 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 	void initGame(int rows){
 		
 		// adjusting vars
+		ROWS = rows;
 		DIAM = displayDims.x/COLS;
 		footerHeight = (int) (displayDims.y*footerRatio/100.0);
 		drawOffset = displayDims.y - footerHeight ;
 		startEmptyRows  = (int) (displayDims.y*startEmptyRatio/100.0/DIAM);
-
+		
 		int sdk = android.os.Build.VERSION.SDK_INT;
 		if(sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
 			this.setBackgroundDrawable(getResources().getDrawable(R.drawable.background_1));
@@ -76,9 +77,11 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 		
 		// filling the map 
 		map = new int [rows][COLS];
-		for (int i = 0; i < startEmptyRows ; i++) 
+		baseRow = rows-1; 
+		for (int i = rows -startEmptyRows; i < ROWS ; i++){ 
 			Arrays.fill(map[i], -1);
-		for (int i = startEmptyRows; i < map.length; i++) 
+		}
+		for (int i = 0; i < rows-startEmptyRows; i++) 
 			for (int j = 0; j < map[0].length; j++) 
 				map[i][j] =(int) (Math.random()*supportedColors); 
 		
@@ -187,12 +190,12 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 		canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
 		
 		//Draw the grid
-		for (int i = baseRow; i < ROWS; i++) 
+		for (int i = baseRow; i >= 0 &&  drawOffset- (baseRow-i)*DIAM > -DIAM; i--) 
 			for (int j = 0; j < COLS -(i&1); j++)
 				if (map[i][j] == -1)
 					continue ;
 				else 
-				canvas.drawBitmap(bubbles[map[i][j]],j*DIAM+((i&1)==1?DIAM/2:0), drawOffset - i*(DIAM-5),  null);
+					canvas.drawBitmap(bubbles[map[i][j]],j*DIAM+((i&1)==1?DIAM/2:0), drawOffset -(baseRow-i-1)*(DIAM-5),  null);
 		
 		// Draw the next to shoot bubbles
 		for (int i = 0; i < nextBubbleColor.length; i++) 
