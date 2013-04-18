@@ -12,11 +12,10 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.animation.TranslateAnimation;
+
 
 public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 
@@ -101,7 +100,7 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 		// initial bullet bubble location
 		bulletInitLoc 	= new Point((displayDims.x - DIAM)/2, y);
 		bulletLoc 		= new Point((displayDims.x - DIAM)/2, y);
-	
+		mainLoopThread.initGame();
 	}
 	
 	public MainGame(Context context) {
@@ -152,11 +151,9 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 	
 	
 	
-	double slope;
-	int dx,dy;
 	boolean isfired = false ;
-	int v = 15; //firing velocity pixel/frame
-	
+	int v = 25; //firing velocity pixel/frame
+	int dx,dy;
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if (event.getAction() == MotionEvent.ACTION_DOWN){
@@ -167,13 +164,24 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 			isfired = true;
 			int xChange = (int) (event.getX() - bulletInitLoc.x);
 			int yChange = (int) (event.getY() - bulletInitLoc.y);
+			// time is the measured in FPS (number of game loop executions)
 			int time = (int) (Math.sqrt(xChange*xChange + yChange*yChange)/v);
+
+			//raed -- i commented your lines just to see the effect of the last change 
+			
+//			mainLoopThread.speedX = xChange/time;
+//			mainLoopThread.speedY = yChange/time;
+//			bulletLoc.x =  bulletInitLoc.x + mainLoopThread.speedX;
+//			bulletLoc.y =  bulletInitLoc.y + mainLoopThread.speedY;
+//			return true ;
+			
+			
 			dx = xChange/time;
 			dy = yChange/time;
-			
 			bulletLoc.x =  bulletInitLoc.x + dx;
 			bulletLoc.y =  bulletInitLoc.y + dy;
 			return true ;
+			
 		}
 		else if (event.getAction() == MotionEvent.ACTION_UP){
 			//touch released;
@@ -210,18 +218,20 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 			bulletLoc.y += dy;
 			int y,x;
 			System.out.println(((drawOffset-bulletLoc.y)/DIAM)+" "+(bulletLoc.x/DIAM));
+			
 			if (bulletLoc.x > displayDims.x-DIAM || bulletLoc.x < 0 ){
 				dx = -dx; 
 			}else if (bulletLoc.y < 0){
 				dy = -dy;
 			
-			}else if (map[y = (drawOffset-bulletLoc.y)/DIAM ][ x = bulletLoc.x/DIAM ]>-1){
+			}else if (map[y = (drawOffset-bulletLoc.y +DIAM/2)/DIAM +1][ x = (bulletLoc.x+DIAM/2)/DIAM ]>-1){
 				//TODO insert the bubble into map
-				map[(drawOffset-bulletLoc.y)/DIAM - 1][bulletLoc.x/DIAM] = bulletColor;
+				map[(drawOffset-bulletLoc.y+DIAM/2)/DIAM][bulletLoc.x/DIAM] = bulletColor;
 //				canvas.drawBitmap(bubblesResized,x*DIAM+((y&1)==1?DIAM/2:0), drawOffset - y*(DIAM-5),  null);
 				isfired = false ;
 				bulletLoc.x = bulletInitLoc.x;
 				bulletLoc.y = bulletInitLoc.y;
+				//TODO call FLOODFILL ALGO
 			}
 		}
 		

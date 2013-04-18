@@ -31,11 +31,13 @@ public class GameLoop extends Thread {
 		sHolder = game.getHolder();
 		gamePanel = game;
 		q = new LinkedList<Integer>();
-//		neighborCOLS = new int[gamePanel.map.length* gamePanel.map[0].length];
-//		neighborROWS = new int[gamePanel.map.length* gamePanel.map[0].length];
-//		visited=  new boolean[gamePanel.map.length][gamePanel.map[0].length];
 	}
-
+	void initGame()
+	{
+		neighborCOLS = new int[gamePanel.map.length* gamePanel.map[0].length];
+		neighborROWS = new int[gamePanel.map.length* gamePanel.map[0].length];
+		visited=  new boolean[gamePanel.map.length][gamePanel.map[0].length];
+	}
 	@SuppressLint("WrongCall")
 	@Override
 	public void run()
@@ -52,7 +54,7 @@ public class GameLoop extends Thread {
 				synchronized (sHolder)
 				{
 					// update game state
-//					updateGame();
+					updateGame();
 					// draws the canvas on the panel
 					gamePanel.onDraw(canvas);
 				}
@@ -66,49 +68,49 @@ public class GameLoop extends Thread {
 
 		}
 	}
-/*
-	void fireBullet()
-	{
-		// TODO not sure about this dimensions
-		gamePanel.bullet.x = gamePanel.displayDims.x/2;
-		gamePanel.bullet.y = MainGame.footerHeight;
-	}
+
 
 	void updateGame()
 	{
-		if (gamePanel.bullet.x != -1)
+		if (gamePanel.isfired)
 		{
 			// update bullet position
-			int newX = gamePanel.bullet.x + speedX;
-			int newY = gamePanel.bullet.y + speedY;
+			int newX = gamePanel.bulletLoc.x + speedX;
+			int newY = gamePanel.bulletLoc.y + speedY;
 			
 			// get bullet index in the map grid 
-			int row = ( gamePanel.bullet.x + MainGame.DIAM/2 ) / MainGame.DIAM;
-			int col = ( gamePanel.bullet.y + MainGame.DIAM/2 ) / MainGame.DIAM;
-			int newRow = (newX + MainGame.DIAM/2) / MainGame.DIAM;
-			int newCol = (newY + MainGame.DIAM/2) / MainGame.DIAM;
+			int row = (MainGame.drawOffset - gamePanel.bulletLoc.y ) / MainGame.DIAM;
+			int col = gamePanel.bulletLoc.x / MainGame.DIAM;
+			int newRow = (MainGame.drawOffset - newY ) / MainGame.DIAM;
+			int newCol = newX / MainGame.DIAM;
 			
 			// check for collision with board borders
-			if (newX > gamePanel.displayDims.x || newX < 0 || newY < 0)
+			if (newX+MainGame.DIAM > gamePanel.displayDims.x || newX < 0 || newY < 0)
 			{
 				if(newY < 0) // reached the border of the board so will stop the bullet
 				{
 					// stop bullet
 					gamePanel.map[row][col] = gamePanel.bulletColor;
-					gamePanel.bullet.x = -1;
-					gamePanel.bullet.y = -1;
+					gamePanel.bulletLoc.x = gamePanel.bulletInitLoc.x;
+					gamePanel.bulletLoc.y = gamePanel.bulletInitLoc.y;
+					gamePanel.isfired = false;
 				}
 				else
 					speedX = -speedX; // collision with horizontal border
 			} else
 			{
-				if (gamePanel.map[newRow][newCol] != -1)
+//				System.out.println("A "+gamePanel.map.length +" "+gamePanel.map[0].length);
+//				System.out.println("Aaaa "+newRow +" "+newCol);
+				if (newRow < gamePanel.map.length && gamePanel.map[newRow][newCol] != -1)
 				{
 					// bullet should be stopped
 					gamePanel.map[row][col] = gamePanel.bulletColor;
+					gamePanel.bulletLoc.x = gamePanel.bulletInitLoc.x;
+					gamePanel.bulletLoc.y = gamePanel.bulletInitLoc.y;
+					gamePanel.isfired = false;
 					
 					// flood fill
-					// TODO change this queue and create your one to avoid allocation
+					// TODO change this queue and create your own to avoid allocation
 					for(int i = 0 ; i < visited.length;i++)
 						for(int j = 0 ; j < visited[0].length;j++)
 							visited[i][j] = false;
@@ -175,11 +177,11 @@ public class GameLoop extends Thread {
 								}
 							}
 				}else{
-					gamePanel.bullet.x = newX;
-					gamePanel.bullet.y = newY;
+					gamePanel.bulletLoc.x = newX;
+					gamePanel.bulletLoc.y = newY;
+					System.out.println(" Bullet X: "+ newX +" ,Y: "+newY);
 				}
 			}
 		}
 	}
-*/
 }
