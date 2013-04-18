@@ -79,10 +79,8 @@ public class GameLoop extends Thread {
 			int newY = gamePanel.bulletLoc.y + speedY;
 			
 			// get bullet index in the map grid 
-			int row = (MainGame.drawOffset - gamePanel.bulletLoc.y ) / MainGame.DIAM;
+			int row = (gamePanel.bulletLoc.y ) / MainGame.DIAM;
 			int col = gamePanel.bulletLoc.x / MainGame.DIAM;
-			int newRow = (MainGame.drawOffset - newY ) / MainGame.DIAM;
-			int newCol = newX / MainGame.DIAM;
 			
 			// check for collision with board borders
 			if (newX+MainGame.DIAM > gamePanel.displayDims.x || newX < 0 || newY < 0)
@@ -99,9 +97,22 @@ public class GameLoop extends Thread {
 					speedX = -speedX; // collision with horizontal border
 			} else
 			{
-//				System.out.println("A "+gamePanel.map.length +" "+gamePanel.map[0].length);
-//				System.out.println("Aaaa "+newRow +" "+newCol);
-				if (newRow < gamePanel.map.length && gamePanel.map[newRow][newCol] != -1)
+				int vertex1R  = newY/MainGame.DIAM; // left upper vertex
+				int vertex1C  = newX/MainGame.DIAM;
+				System.out.println(" AAA "+vertex1R +" "+vertex1C+" "+gamePanel.map[vertex1R][vertex1C]);
+				int vertex2R  = newY/MainGame.DIAM; // right upper vertex
+				int vertex2C  = (newX+MainGame.DIAM)/MainGame.DIAM;
+				
+				int vertex3R  = (newY+MainGame.DIAM)/MainGame.DIAM; // left lower vertex 
+				int vertex3C  = newX/MainGame.DIAM;
+				
+				int vertex4R  = (newY+MainGame.DIAM)/MainGame.DIAM; // right lower vertex
+				int vertex4C  = (newX+MainGame.DIAM)/MainGame.DIAM;
+				if (gamePanel.map[vertex1R][vertex1C] != -1 ||
+						(vertex2C < gamePanel.map[0].length && gamePanel.map[vertex2R][vertex2C] != -1)||
+						(vertex3R < gamePanel.map.length &&(
+						gamePanel.map[vertex3R][vertex3C] != -1||
+						(vertex4C < gamePanel.map[0].length && gamePanel.map[vertex4R][vertex4C] != -1))))
 				{
 					// bullet should be stopped
 					gamePanel.map[row][col] = gamePanel.bulletColor;
@@ -179,7 +190,7 @@ public class GameLoop extends Thread {
 				}else{
 					gamePanel.bulletLoc.x = newX;
 					gamePanel.bulletLoc.y = newY;
-					System.out.println(" Bullet X: "+ newX +" ,Y: "+newY);
+//					System.out.println(" Bullet X: "+ newX +" ,Y: "+newY);
 				}
 			}
 		}
