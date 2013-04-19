@@ -34,6 +34,8 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 	static int gunWidth = 200;
 	static int drawOffset ; // upper end of footer
 	static int DIAM = 65; //bubble diameter
+	static int shiftMargin;
+	
 	
 	Point bulletLoc;
 	Point bulletInitLoc;
@@ -70,6 +72,7 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 		footerHeight = (int) (displayDims.y*footerRatio/100.0);
 		drawOffset = displayDims.y - footerHeight ;
 		startEmptyRows  = (int) (displayDims.y*startEmptyRatio/100.0/DIAM);
+		shiftMargin = 0;
 		
 		int sdk = android.os.Build.VERSION.SDK_INT;
 		if(sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
@@ -134,15 +137,15 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 		bulletColor = nextBubbleColor[nextBubble];
 		nextBubbleColor[nextBubble] = (int) (Math.random()*supportedColors);
 		nextBubble  = (nextBubble+1)%nextBubbleColor.length;
-		String s  = "";
-		for(int  i = 0 ; i < map.length;i++ , s+= "\n")
-			for(int  j = 0 ; j < map[0].length;j++)
-				s+= map[i][j]+" ";
-		System.out.println(s);
-		s = "";
-		for(int i = 0 ; i < nextBubbleColor.length;i++)
-			s+=nextBubbleColor[(i+nextBubble)%nextBubbleColor.length]+" ";
-		System.out.println("Next "+s);
+//		String s  = "";
+//		for(int  i = 0 ; i < map.length;i++ , s+= "\n")
+//			for(int  j = 0 ; j < map[0].length;j++)
+//				s+= map[i][j]+" ";
+//		System.out.println(s);
+//		s = "";
+//		for(int i = 0 ; i < nextBubbleColor.length;i++)
+//			s+=nextBubbleColor[(i+nextBubble)%nextBubbleColor.length]+" ";
+//		System.out.println("Next "+s);
 	}
 	
 	
@@ -224,11 +227,11 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 				if (map[i][j] == -1)
 					continue ;
 				else 
-					canvas.drawBitmap(bubbles[map[i][j]],j*DIAM, i*DIAM,  null);
+					canvas.drawBitmap(bubbles[map[i][j]],j*DIAM, i*DIAM+shiftMargin,  null);
 		
 		// Draw the next to shoot bubbles
 		for (int i = 0; i < nextBubbleColor.length; i++) 
-			canvas.drawBitmap(bubbles[nextBubbleColor[(i+nextBubble)%nextBubbleColor.length]], nextBubbleLoc[nextBubbleColor.length-1-i].x, nextBubbleLoc[nextBubbleColor.length-1-i].y, null);
+			canvas.drawBitmap(bubbles[nextBubbleColor[(i+nextBubble)%nextBubbleColor.length]], nextBubbleLoc[i].x, nextBubbleLoc[i].y, null);
 		
 		// Draw the bullet bubble
 		canvas.drawBitmap(bubbles[bulletColor], bulletLoc.x,bulletLoc.y, null);
