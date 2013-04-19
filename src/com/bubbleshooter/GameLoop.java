@@ -92,6 +92,7 @@ public class GameLoop extends Thread {
 					gamePanel.bulletLoc.x = gamePanel.bulletInitLoc.x;
 					gamePanel.bulletLoc.y = gamePanel.bulletInitLoc.y;
 					gamePanel.isfired = false;
+					gamePanel.bulletColor = (int) (Math.random()*MainGame.supportedColors);
 				}
 				else
 					speedX = -speedX; // collision with horizontal border
@@ -119,7 +120,8 @@ public class GameLoop extends Thread {
 					gamePanel.bulletLoc.x = gamePanel.bulletInitLoc.x;
 					gamePanel.bulletLoc.y = gamePanel.bulletInitLoc.y;
 					gamePanel.isfired = false;
-
+					gamePanel.bulletColor = (int) (Math.random()*MainGame.supportedColors);
+					
 					// flood fill
 					// TODO change this queue and create your own to avoid allocation
 					for(int i = 0 ; i < visited.length;i++)
