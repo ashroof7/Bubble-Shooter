@@ -15,7 +15,7 @@ public class GameActivity extends Activity {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-		 setContentView(R.layout.activity_fullscreen);
+//		setContentView(R.layout.activity_game);
 		setContentView(new MainGame(this));
 	}
 
