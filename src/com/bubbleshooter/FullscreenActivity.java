@@ -9,6 +9,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.bubbleshooter.util.SystemUiHider;
+import com.embo.bubble_shooter_mine.R;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.

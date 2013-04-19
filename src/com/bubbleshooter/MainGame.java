@@ -15,11 +15,14 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.embo.bubble_shooter_mine.R;
+
 
 public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 
 	GameLoop mainLoopThread;
 	Point displayDims;
+	static int score;
 	static int ROWS = 15;
 	static int COLS = 10;
 	static int baseRow = 0; // the matching row with the footer
@@ -60,7 +63,7 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 	@SuppressWarnings("deprecation")
 	@SuppressLint("NewApi")
 	void initGame(int rows){
-		
+		score = 0;
 		// adjusting vars
 		ROWS = rows;
 		DIAM = displayDims.x/COLS;

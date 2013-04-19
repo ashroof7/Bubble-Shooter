@@ -5,8 +5,12 @@ import java.util.Queue;
 
 import android.annotation.SuppressLint;
 import android.graphics.Canvas;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.util.Log;
 import android.view.SurfaceHolder;
+
+import com.embo.bubble_shooter_mine.R;
 
 public class GameLoop extends Thread {
 	boolean isRunning;
@@ -23,7 +27,10 @@ public class GameLoop extends Thread {
 	static int[] neighborCOLS;
 	static boolean[][] visited;
 	static int neighborsCount;
-
+	
+	SoundPool soundPool;
+	static int hitSoundID;
+	static int scoreSoundID;
 
 	public GameLoop(MainGame game)
 	{
@@ -31,6 +38,9 @@ public class GameLoop extends Thread {
 		sHolder = game.getHolder();
 		gamePanel = game;
 		q = new LinkedList<Integer>();
+		soundPool = new SoundPool(2, AudioManager.STREAM_MUSIC, 100);
+		hitSoundID = soundPool.load(gamePanel.getContext(), R.raw.ballhit, 1);
+		scoreSoundID = soundPool.load(gamePanel.getContext(), R.raw.score, 1);
 	}
 	void initGame()
 	{
@@ -92,6 +102,7 @@ public class GameLoop extends Thread {
 					gamePanel.bulletLoc.x = gamePanel.bulletInitLoc.x;
 					gamePanel.bulletLoc.y = gamePanel.bulletInitLoc.y;
 					gamePanel.isfired = false;
+					soundPool.play(hitSoundID, 1, 1, 1, 0, 1f);
 				}
 				else
 					speedX = -speedX; // collision with horizontal border
@@ -119,7 +130,8 @@ public class GameLoop extends Thread {
 					gamePanel.bulletLoc.x = gamePanel.bulletInitLoc.x;
 					gamePanel.bulletLoc.y = gamePanel.bulletInitLoc.y;
 					gamePanel.isfired = false;
-
+					soundPool.play(hitSoundID, 1, 1, 1, 0, 1f);
+					
 					// flood fill
 					// TODO change this queue and create your own to avoid allocation
 					for(int i = 0 ; i < visited.length;i++)
@@ -151,8 +163,12 @@ public class GameLoop extends Thread {
 						}
 					}
 					if(neighborsCount >= 3)
+					{
+						MainGame.score++;
+						soundPool.play(scoreSoundID, 1, 1, 1, 0, 1f);
 						for(int i = 0 ;i  < neighborsCount;i++)
 							gamePanel.map[neighborROWS[i]][neighborCOLS[i]] = -1;
+					}
 					// check for disconnected bullet
 					for(int i = 0 ; i < visited.length;i++)
 						for(int j = 0 ; j < visited[0].length;j++)
