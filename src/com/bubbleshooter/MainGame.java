@@ -58,7 +58,7 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 	// 0 is the next to be fired 
 	int nextBubbleColor[] = new int[3];
 	Point nextBubbleLoc[] = new Point[3];
-	
+	int nextBubble;
 	//FIXME profile the performance for the background image
 	@SuppressWarnings("deprecation")
 	@SuppressLint("NewApi")
@@ -86,7 +86,8 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 		}
 		for (int i = 0; i < rows-startEmptyRows; i++) 
 			for (int j = 0; j < map[0].length; j++) 
-				map[i][j] =(int) (Math.random()*supportedColors); 
+				map[i][j] =(int) (i%supportedColors); 
+//				map[i][j] =(int) (Math.random()*supportedColors); 
 		
 		// adjust location and color of the 3 next bubbles to shoot
 		int gap = displayDims.x/40;
@@ -101,6 +102,7 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 		bulletInitLoc 	= new Point((displayDims.x - DIAM)/2, y);
 		bulletLoc 		= new Point((displayDims.x - DIAM)/2, y);
 		bulletColor =  (int) (Math.random()*supportedColors);
+		nextBubble = 0;
 		mainLoopThread.initGame();
 	}
 	
@@ -125,7 +127,15 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 		for (int i = 0; i < supportedColors; i++) 
 			bubbles[i] = Bitmap.createScaledBitmap(rawBubbles[i], DIAM, DIAM, false);
 	}
-
+	void getNextBubble()
+	{
+		bulletLoc.x = bulletInitLoc.x; 
+		bulletLoc.y = bulletInitLoc.y; 
+		bulletColor = nextBubbleColor[nextBubble];
+		nextBubble  = (nextBubble+1)%nextBubbleColor.length;
+	}
+	
+	
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
@@ -202,7 +212,7 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 		
 		// Draw the next to shoot bubbles
 		for (int i = 0; i < nextBubbleColor.length; i++) 
-			canvas.drawBitmap(bubbles[nextBubbleColor[i]], nextBubbleLoc[i].x, nextBubbleLoc[i].y, null);
+			canvas.drawBitmap(bubbles[nextBubbleColor[(i+nextBubble)%nextBubbleColor.length]], nextBubbleLoc[i].x, nextBubbleLoc[i].y, null);
 		
 		// Draw the bullet bubble
 		canvas.drawBitmap(bubbles[bulletColor], bulletLoc.x,bulletLoc.y, null);

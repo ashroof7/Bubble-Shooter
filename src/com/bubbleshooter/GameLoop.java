@@ -108,27 +108,33 @@ public class GameLoop extends Thread {
 					speedX = -speedX; // collision with horizontal border
 			} else
 			{
-				int vertex1R  = newY/MainGame.DIAM; // left upper vertex
-				int vertex1C  = newX/MainGame.DIAM;
-				System.out.println(" AAA "+vertex1R +" "+vertex1C+" "+gamePanel.map[vertex1R][vertex1C]);
-				int vertex2R  = newY/MainGame.DIAM; // right upper vertex
-				int vertex2C  = (newX+MainGame.DIAM)/MainGame.DIAM;
-
-				int vertex3R  = (newY+MainGame.DIAM)/MainGame.DIAM; // left lower vertex 
-				int vertex3C  = newX/MainGame.DIAM;
-
-				int vertex4R  = (newY+MainGame.DIAM)/MainGame.DIAM; // right lower vertex
-				int vertex4C  = (newX+MainGame.DIAM)/MainGame.DIAM;
-				if (gamePanel.map[vertex1R][vertex1C] != -1 ||
-						(vertex2C < gamePanel.map[0].length && gamePanel.map[vertex2R][vertex2C] != -1)||
-						(vertex3R < gamePanel.map.length &&(
-						gamePanel.map[vertex3R][vertex3C] != -1||
-						(vertex4C < gamePanel.map[0].length && gamePanel.map[vertex4R][vertex4C] != -1))))
+				int centerY = (newY+MainGame.DIAM/2);
+				int centerX = (newX+MainGame.DIAM/2);
+				int centerR  = centerY/MainGame.DIAM;//ball center row/column
+				int centerC  = centerX/MainGame.DIAM;
+				boolean collision = false;
+				for(int i = 0; i < dr.length;i++)
+				{
+					int nextCellR = centerR+dr[i];
+					int nextCellC = centerC+dc[i];
+					if(nextCellR >= 0 && nextCellR < gamePanel.map.length && nextCellC >= 0 && nextCellC < gamePanel.map[0].length && gamePanel.map[nextCellR][nextCellC] != -1)
+					{
+						// check two balls intersection
+						int nextCellCenterX = nextCellC*(MainGame.DIAM) + MainGame.DIAM/2;
+						int nextCellCenterY = nextCellR*(MainGame.DIAM) + MainGame.DIAM/2;
+						int dist2 = (nextCellCenterX-centerX)*(nextCellCenterX-centerX)+(nextCellCenterY-centerY)*(nextCellCenterY-centerY);
+						if(dist2 <= MainGame.DIAM*MainGame.DIAM)
+						{
+							collision = true;
+							break;
+						}
+					}
+				}
+				if (collision)
 				{
 					// bullet should be stopped
 					gamePanel.map[row][col] = gamePanel.bulletColor;
-					gamePanel.bulletLoc.x = gamePanel.bulletInitLoc.x;
-					gamePanel.bulletLoc.y = gamePanel.bulletInitLoc.y;
+					gamePanel.getNextBubble();
 					gamePanel.isfired = false;
 					soundPool.play(hitSoundID, 1, 1, 1, 0, 1f);
 					
@@ -152,7 +158,7 @@ public class GameLoop extends Thread {
 						{
 							int neighborC = frontC + dc[i]; 
 							int neighborR = frontR + dr[i];
-							if(neighborC > 0 && neighborC < MainGame.COLS && neighborR > 0 && neighborR < MainGame.baseRow && gamePanel.map[neighborR][neighborC] == color && !visited[neighborR][neighborC])
+							if(neighborC >= 0 && neighborC < MainGame.COLS && neighborR >= 0 && neighborR < MainGame.baseRow && gamePanel.map[neighborR][neighborC] == color && !visited[neighborR][neighborC])
 							{
 								neighborCOLS[neighborsCount] = neighborC;
 								neighborROWS[neighborsCount++] = neighborR;
@@ -206,7 +212,6 @@ public class GameLoop extends Thread {
 				}else{
 					gamePanel.bulletLoc.x = newX;
 					gamePanel.bulletLoc.y = newY;
-//					System.out.println(" Bullet X: "+ newX +" ,Y: "+newY);
 				}
 			}
 		}
