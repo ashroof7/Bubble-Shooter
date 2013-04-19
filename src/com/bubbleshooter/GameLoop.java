@@ -29,6 +29,8 @@ public class GameLoop extends Thread {
 	SoundPool soundPool;
 	static int hitSoundID;
 	static int scoreSoundID;
+	static final int SHIFTDOWN = 100;
+	static int Downperiod = SHIFTDOWN;
 
 	public GameLoop(MainGame game) {
 		super();
@@ -51,41 +53,67 @@ public class GameLoop extends Thread {
 	public void run() {
 		Canvas canvas;
 		Log.v("MainThread", "starting the main thread");
-		while (isRunning) {
+		boolean win = false;
+		while (isRunning)
+		{
 			canvas = null;
 
 			try {
 				canvas = sHolder.lockCanvas();
 				synchronized (sHolder) {
 					// update game state
-					updateGame();
+					win = updateGame();
+					isRunning = !win;
 					// draws the canvas on the panel
 					gamePanel.onDraw(canvas);
+
+					if (isRunning && --Downperiod < 0)
+					{
+						// check base row if there's any ball he loses
+						for (int i = 0; i < gamePanel.map[0].length; i++)
+							if (gamePanel.map[MainGame.baseRow][i] != -1)
+							{
+								win = isRunning = false;
+								break;
+							}
+						if (isRunning)
+						{
+							MainGame.baseRow--;
+							MainGame.shiftMargin += MainGame.DIAM;
+							Downperiod = SHIFTDOWN;
+						}
+					}
 				}
 			} finally {
 				if (canvas != null) {
 					sHolder.unlockCanvasAndPost(canvas);
 				}
 			}
-
 		}
+		System.out.println("Player = Win/Lose  = "+ win);
 	}
 
-	void updateGame() {
-		if (gamePanel.isfired) {
+	boolean updateGame()
+	{
+		if (gamePanel.isfired)
+		{
 			// update bullet position
 			int newX = gamePanel.bulletLoc.x + speedX;
 			int newY = gamePanel.bulletLoc.y + speedY;
 
 			// get bullet index in the map grid
-			int row = (gamePanel.bulletLoc.y) / MainGame.DIAM;
-			int col = gamePanel.bulletLoc.x / MainGame.DIAM;
+			int row = (gamePanel.bulletLoc.y + MainGame.DIAM / 2 - MainGame.shiftMargin)
+					/ MainGame.DIAM;
+			int col = (gamePanel.bulletLoc.x + MainGame.DIAM / 2)
+					/ MainGame.DIAM;
 
 			// check for collision with board borders
 			if (newX + MainGame.DIAM > gamePanel.displayDims.x || newX < 0
-					|| newY < 0) {
-				if (newY < 0) // reached the border of the board so will stop
-								// the bullet
+					|| newY < MainGame.shiftMargin)
+			{
+				if (newY < MainGame.shiftMargin) // reached the border of the
+													// board so will stop
+				// the bullet
 				{
 					// stop bullet
 					gamePanel.map[row][col] = gamePanel.bulletColor;
@@ -99,7 +127,9 @@ public class GameLoop extends Thread {
 			} else {
 				int centerY = (newY + MainGame.DIAM / 2);
 				int centerX = (newX + MainGame.DIAM / 2);
-				int centerR = centerY / MainGame.DIAM;// ball center row/column
+				int centerR = (centerY - MainGame.shiftMargin) / MainGame.DIAM;// ball
+																				// center
+																				// row/column
 				int centerC = centerX / MainGame.DIAM;
 				boolean collision = false;
 				for (int i = 0; i < dr.length; i++) {
@@ -113,7 +143,7 @@ public class GameLoop extends Thread {
 						int nextCellCenterX = nextCellC * (MainGame.DIAM)
 								+ MainGame.DIAM / 2;
 						int nextCellCenterY = nextCellR * (MainGame.DIAM)
-								+ MainGame.DIAM / 2;
+								+ MainGame.DIAM / 2 + MainGame.shiftMargin;
 						int dist2 = (nextCellCenterX - centerX)
 								* (nextCellCenterX - centerX)
 								+ (nextCellCenterY - centerY)
@@ -190,9 +220,9 @@ public class GameLoop extends Thread {
 										for (int i = 0; i < dc.length; i++) {
 											int neighborC = frontC + dc[i];
 											int neighborR = frontR + dr[i];
-											if (neighborC > 0
+											if (neighborC >= 0
 													&& neighborC < MainGame.COLS
-													&& neighborR > 0
+													&& neighborR >= 0
 													&& neighborR < gamePanel.map.length
 													&& gamePanel.map[neighborR][neighborC] != -1
 													&& !visited[neighborR][neighborC]) {
@@ -206,6 +236,12 @@ public class GameLoop extends Thread {
 										}
 									}
 								}
+						boolean won = true;
+						for (int r = 0; r <= MainGame.baseRow && won; r++)
+							for (int c = 0; c < gamePanel.map[0].length && won; c++)
+								if (gamePanel.map[r][c] != -1)
+									won = false;
+						return won;
 					}
 				} else {
 					gamePanel.bulletLoc.x = newX;
@@ -213,5 +249,6 @@ public class GameLoop extends Thread {
 				}
 			}
 		}
+		return false;
 	}
 }
