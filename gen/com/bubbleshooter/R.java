@@ -45,18 +45,14 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int sound_on=0x7f02000a;
     }
     public static final class id {
-        public static final int logo=0x7f0a0002;
-        public static final int mainGame1=0x7f0a0000;
-        public static final int mainMenuLLayout=0x7f0a0001;
-        public static final int play=0x7f0a0003;
-        public static final int sound=0x7f0a0004;
+        public static final int game_frame=0x7f090000;
+        public static final int main_men_LLayout=0x7f090001;
+        public static final int play=0x7f090002;
+        public static final int sound=0x7f090003;
     }
     public static final class layout {
         public static final int activity_game=0x7f030000;
         public static final int activity_main_menu=0x7f030001;
-    }
-    public static final class menu {
-        public static final int testactivity=0x7f090000;
     }
     public static final class raw {
         public static final int ballhit=0x7f040000;

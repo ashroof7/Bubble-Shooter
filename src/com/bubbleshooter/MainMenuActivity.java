@@ -27,7 +27,7 @@ public class MainMenuActivity extends Activity {
 		setContentView(R.layout.activity_main_menu);
 
 		
-		((LinearLayout) findViewById(R.id.mainMenuLLayout)).setPadding(0, 0, 0, dims.y/10);
+		((LinearLayout) findViewById(R.id.main_men_LLayout)).setPadding(0, 0, 0, dims.y/10);
 		
 		final Intent intent = new Intent(MainMenuActivity.this , GameActivity.class);
 		ImageView play = (ImageView) findViewById(R.id.play);

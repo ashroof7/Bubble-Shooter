@@ -10,7 +10,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
-import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -187,8 +186,7 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 
 	}
 	
-	
-	
+		
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if (event.getAction() == MotionEvent.ACTION_DOWN){
@@ -216,6 +214,7 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 		
 		return false;
 	}	
+	
 	@Override
 	protected void onDraw(Canvas canvas) {
 		if(firstDraw)
