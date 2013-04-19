@@ -150,7 +150,7 @@ public class GameLoop extends Thread {
 							}
 						}
 					}
-					if(neighborsCount > 3)
+					if(neighborsCount >= 3)
 						for(int i = 0 ;i  < neighborsCount;i++)
 							gamePanel.map[neighborROWS[i]][neighborCOLS[i]] = -1;
 					// check for disconnected bullet
