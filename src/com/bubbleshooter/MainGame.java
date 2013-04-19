@@ -132,7 +132,17 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 		bulletLoc.x = bulletInitLoc.x; 
 		bulletLoc.y = bulletInitLoc.y; 
 		bulletColor = nextBubbleColor[nextBubble];
+		nextBubbleColor[nextBubble] = (int) (Math.random()*supportedColors);
 		nextBubble  = (nextBubble+1)%nextBubbleColor.length;
+		String s  = "";
+		for(int  i = 0 ; i < map.length;i++ , s+= "\n")
+			for(int  j = 0 ; j < map[0].length;j++)
+				s+= map[i][j]+" ";
+		System.out.println(s);
+		s = "";
+		for(int i = 0 ; i < nextBubbleColor.length;i++)
+			s+=nextBubbleColor[(i+nextBubble)%nextBubbleColor.length]+" ";
+		System.out.println("Next "+s);
 	}
 	
 	
@@ -197,22 +207,28 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 		
 		return false;
 	}	
-	
+	boolean firstDraw = true;
 	@Override
 	protected void onDraw(Canvas canvas) {
+		if(firstDraw)
+		{
+			firstDraw = false;
+			return ;
+		}
+		
 		canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
 		
 		//Draw the grid
-		for (int i = baseRow; i >= 0 &&  drawOffset- (baseRow-i)*DIAM > -DIAM; i--) 
-			for (int j = 0; j < COLS -(i&1); j++)
+		for (int i = baseRow; i >= 0 ; i--) 
+			for (int j = 0; j < COLS ; j++)
 				if (map[i][j] == -1)
 					continue ;
 				else 
-					canvas.drawBitmap(bubbles[map[i][j]],j*DIAM+((i&1)==1?DIAM/2:0), drawOffset -(baseRow-i-1)*(DIAM-5),  null);
+					canvas.drawBitmap(bubbles[map[i][j]],j*DIAM, i*DIAM,  null);
 		
 		// Draw the next to shoot bubbles
 		for (int i = 0; i < nextBubbleColor.length; i++) 
-			canvas.drawBitmap(bubbles[nextBubbleColor[(i+nextBubble)%nextBubbleColor.length]], nextBubbleLoc[i].x, nextBubbleLoc[i].y, null);
+			canvas.drawBitmap(bubbles[nextBubbleColor[(i+nextBubble)%nextBubbleColor.length]], nextBubbleLoc[nextBubbleColor.length-1-i].x, nextBubbleLoc[nextBubbleColor.length-1-i].y, null);
 		
 		// Draw the bullet bubble
 		canvas.drawBitmap(bubbles[bulletColor], bulletLoc.x,bulletLoc.y, null);

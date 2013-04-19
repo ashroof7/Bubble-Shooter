@@ -21,13 +21,13 @@ public class GameLoop extends Thread {
 	int speedX = 1;
 	int speedY = 1;
 
-	static final int[] dc = {0,0,1,-1,1,1,-1,-1}; 
-	static final int[] dr = {1,-1,0,0,1,-1,1,-1}; 
+	static final int[] dc = { 0, 0, 1, -1, 1, 1, -1, -1 };
+	static final int[] dr = { 1, -1, 0, 0, 1, -1, 1, -1 };
 	static int[] neighborROWS;
 	static int[] neighborCOLS;
 	static boolean[][] visited;
 	static int neighborsCount;
-	
+
 	SoundPool soundPool;
 	static int hitSoundID;
 	static int scoreSoundID;
@@ -42,12 +42,14 @@ public class GameLoop extends Thread {
 		hitSoundID = soundPool.load(gamePanel.getContext(), R.raw.ballhit, 1);
 		scoreSoundID = soundPool.load(gamePanel.getContext(), R.raw.score, 1);
 	}
+
 	void initGame()
 	{
-		neighborCOLS = new int[gamePanel.map.length* gamePanel.map[0].length];
-		neighborROWS = new int[gamePanel.map.length* gamePanel.map[0].length];
-		visited=  new boolean[gamePanel.map.length][gamePanel.map[0].length];
+		neighborCOLS = new int[gamePanel.map.length * gamePanel.map[0].length];
+		neighborROWS = new int[gamePanel.map.length * gamePanel.map[0].length];
+		visited = new boolean[gamePanel.map.length][gamePanel.map[0].length];
 	}
+
 	@SuppressLint("WrongCall")
 	@Override
 	public void run()
@@ -79,7 +81,6 @@ public class GameLoop extends Thread {
 		}
 	}
 
-
 	void updateGame()
 	{
 		if (gamePanel.isfired)
@@ -88,14 +89,16 @@ public class GameLoop extends Thread {
 			int newX = gamePanel.bulletLoc.x + speedX;
 			int newY = gamePanel.bulletLoc.y + speedY;
 
-			// get bullet index in the map grid 
-			int row = (gamePanel.bulletLoc.y ) / MainGame.DIAM;
+			// get bullet index in the map grid
+			int row = (gamePanel.bulletLoc.y) / MainGame.DIAM;
 			int col = gamePanel.bulletLoc.x / MainGame.DIAM;
 
 			// check for collision with board borders
-			if (newX+MainGame.DIAM > gamePanel.displayDims.x || newX < 0 || newY < 0)
+			if (newX + MainGame.DIAM > gamePanel.displayDims.x || newX < 0
+					|| newY < 0)
 			{
-				if(newY < 0) // reached the border of the board so will stop the bullet
+				if (newY < 0) // reached the border of the board so will stop
+								// the bullet
 				{
 					// stop bullet
 					gamePanel.map[row][col] = gamePanel.bulletColor;
@@ -103,27 +106,34 @@ public class GameLoop extends Thread {
 					gamePanel.bulletLoc.y = gamePanel.bulletInitLoc.y;
 					gamePanel.isfired = false;
 					soundPool.play(hitSoundID, 1, 1, 1, 0, 1f);
-				}
-				else
+				} else
 					speedX = -speedX; // collision with horizontal border
 			} else
 			{
-				int centerY = (newY+MainGame.DIAM/2);
-				int centerX = (newX+MainGame.DIAM/2);
-				int centerR  = centerY/MainGame.DIAM;//ball center row/column
-				int centerC  = centerX/MainGame.DIAM;
+				int centerY = (newY + MainGame.DIAM / 2);
+				int centerX = (newX + MainGame.DIAM / 2);
+				int centerR = centerY / MainGame.DIAM;// ball center row/column
+				int centerC = centerX / MainGame.DIAM;
 				boolean collision = false;
-				for(int i = 0; i < dr.length;i++)
+				for (int i = 0; i < dr.length; i++)
 				{
-					int nextCellR = centerR+dr[i];
-					int nextCellC = centerC+dc[i];
-					if(nextCellR >= 0 && nextCellR < gamePanel.map.length && nextCellC >= 0 && nextCellC < gamePanel.map[0].length && gamePanel.map[nextCellR][nextCellC] != -1)
+					int nextCellR = centerR + dr[i];
+					int nextCellC = centerC + dc[i];
+					if (nextCellR >= 0 && nextCellR < gamePanel.map.length
+							&& nextCellC >= 0
+							&& nextCellC < gamePanel.map[0].length
+							&& gamePanel.map[nextCellR][nextCellC] != -1)
 					{
 						// check two balls intersection
-						int nextCellCenterX = nextCellC*(MainGame.DIAM) + MainGame.DIAM/2;
-						int nextCellCenterY = nextCellR*(MainGame.DIAM) + MainGame.DIAM/2;
-						int dist2 = (nextCellCenterX-centerX)*(nextCellCenterX-centerX)+(nextCellCenterY-centerY)*(nextCellCenterY-centerY);
-						if(dist2 <= MainGame.DIAM*MainGame.DIAM)
+						int nextCellCenterX = nextCellC * (MainGame.DIAM)
+								+ MainGame.DIAM / 2;
+						int nextCellCenterY = nextCellR * (MainGame.DIAM)
+								+ MainGame.DIAM / 2;
+						int dist2 = (nextCellCenterX - centerX)
+								* (nextCellCenterX - centerX)
+								+ (nextCellCenterY - centerY)
+								* (nextCellCenterY - centerY);
+						if (dist2 <= MainGame.DIAM * MainGame.DIAM)
 						{
 							collision = true;
 							break;
@@ -133,32 +143,37 @@ public class GameLoop extends Thread {
 				if (collision)
 				{
 					// bullet should be stopped
-					gamePanel.map[row][col] = gamePanel.bulletColor;
+					int color = gamePanel.map[row][col] = gamePanel.bulletColor;
 					gamePanel.getNextBubble();
 					gamePanel.isfired = false;
 					soundPool.play(hitSoundID, 1, 1, 1, 0, 1f);
-					
+
 					// flood fill
-					// TODO change this queue and create your own to avoid allocation
-					for(int i = 0 ; i < visited.length;i++)
-						for(int j = 0 ; j < visited[0].length;j++)
+					// TODO change this queue and create your own to avoid
+					// allocation
+					for (int i = 0; i < visited.length; i++)
+						for (int j = 0; j < visited[0].length; j++)
 							visited[i][j] = false;
 					q.add(row);
 					q.add(col);
-					int color = gamePanel.bulletColor;
 					neighborROWS[0] = row;
 					neighborCOLS[0] = col;
 					visited[row][col] = true;
 					neighborsCount = 1;
-					while(!q.isEmpty())
+					while (!q.isEmpty())
 					{
 						int frontR = q.poll();
 						int frontC = q.poll();
-						for(int i = 0; i < dc.length;i++)
+						for (int i = 0; i < dc.length; i++)
 						{
-							int neighborC = frontC + dc[i]; 
+							int neighborC = frontC + dc[i];
 							int neighborR = frontR + dr[i];
-							if(neighborC >= 0 && neighborC < MainGame.COLS && neighborR >= 0 && neighborR < MainGame.baseRow && gamePanel.map[neighborR][neighborC] == color && !visited[neighborR][neighborC])
+							if (neighborC >= 0
+									&& neighborC < MainGame.COLS
+									&& neighborR >= 0
+									&& neighborR < gamePanel.map.length
+									&& gamePanel.map[neighborR][neighborC] == color
+									&& !visited[neighborR][neighborC])
 							{
 								neighborCOLS[neighborsCount] = neighborC;
 								neighborROWS[neighborsCount++] = neighborR;
@@ -168,48 +183,57 @@ public class GameLoop extends Thread {
 							}
 						}
 					}
-					if(neighborsCount >= 3)
+					if (neighborsCount >= 3)
 					{
 						MainGame.score++;
 						soundPool.play(scoreSoundID, 1, 1, 1, 0, 1f);
-						for(int i = 0 ;i  < neighborsCount;i++)
+						for (int i = 0; i < neighborsCount; i++)
 							gamePanel.map[neighborROWS[i]][neighborCOLS[i]] = -1;
-					}
-					// check for disconnected bullet
-					for(int i = 0 ; i < visited.length;i++)
-						for(int j = 0 ; j < visited[0].length;j++)
-							visited[i][j] = false;
-					for(int r = MainGame.baseRow ; r < visited.length;r++)
-						for(int c = 0 ; c < visited[0].length;c++)
-							if(gamePanel.map[r][c] != -1 &&  !visited[r][c])
-							{
-								q.add(r);
-								q.add(c);
-								if(r > 0) // disconnected component
-									gamePanel.map[r][c] = -1;
-								else
-									visited[r][c] = true; // first connected component that is near the ceiling
-								while(!q.isEmpty())
+						// check for disconnected bullet
+						for (int i = 0; i < visited.length; i++)
+							for (int j = 0; j < visited[0].length; j++)
+								visited[i][j] = false;
+						for (int r = 0; r <= MainGame.baseRow; r++)
+							for (int c = 0; c < visited[0].length; c++)
+								if (gamePanel.map[r][c] != -1 && !visited[r][c])
 								{
-									int frontR = q.poll();
-									int frontC = q.poll();
-									for(int i = 0; i < dc.length;i++)
+									q.add(r);
+									q.add(c);
+									if (r > 0) // disconnected component
+										gamePanel.map[r][c] = -1;
+									else
+										visited[r][c] = true; // first connected
+																// component
+																// that is near
+																// the ceiling
+									while (!q.isEmpty())
 									{
-										int neighborC = frontC + dc[i]; 
-										int neighborR = frontR + dr[i];
-										if(neighborC > 0 && neighborC < MainGame.COLS && neighborR > 0 && neighborR < MainGame.baseRow && gamePanel.map[neighborR][neighborC] != -1 && !visited[neighborR][neighborC])
+										int frontR = q.poll();
+										int frontC = q.poll();
+										for (int i = 0; i < dc.length; i++)
 										{
-											if(r > 0)
-												gamePanel.map[neighborR][neighborC] = -1;
-											else
-												visited[neighborR][neighborC] = true;
-											q.add(neighborR);
-											q.add(neighborC);
+											int neighborC = frontC + dc[i];
+											int neighborR = frontR + dr[i];
+											if (neighborC > 0
+													&& neighborC < MainGame.COLS
+													&& neighborR > 0
+													&& neighborR < gamePanel.map.length
+													&& gamePanel.map[neighborR][neighborC] != -1
+													&& !visited[neighborR][neighborC])
+											{
+												if (r > 0)
+													gamePanel.map[neighborR][neighborC] = -1;
+												else
+													visited[neighborR][neighborC] = true;
+												q.add(neighborR);
+												q.add(neighborC);
+											}
 										}
 									}
 								}
-							}
-				}else{
+					}
+				} else
+				{
 					gamePanel.bulletLoc.x = newX;
 					gamePanel.bulletLoc.y = newY;
 				}
