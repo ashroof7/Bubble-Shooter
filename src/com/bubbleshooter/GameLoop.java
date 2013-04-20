@@ -7,8 +7,6 @@ import android.media.SoundPool;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
-import com.embo.bubble_shooter_mine.R;
-
 public class GameLoop extends Thread {
 	boolean isRunning;
 	SurfaceHolder sHolder;
@@ -53,6 +51,7 @@ public class GameLoop extends Thread {
 		Canvas canvas;
 		Log.v("MainThread", "starting the main thread");
 		boolean win = false;
+		boolean lost = false;
 		while (isRunning)
 		{
 			canvas = null;
@@ -72,14 +71,17 @@ public class GameLoop extends Thread {
 						for (int i = 0; i < gamePanel.map[0].length; i++)
 							if (gamePanel.map[MainGame.baseRow][i] != -1)
 							{
-								win = isRunning = false;
+								lost = true;
 								break;
 							}
-						if (isRunning)
+						if (!lost)
 						{
 							MainGame.baseRow--;
 							MainGame.shiftMargin += MainGame.DIAM;
 							Downperiod = SHIFTDOWN;
+						}else
+						{
+							gamePanel.gameEnd(false);
 						}
 					}
 				}
@@ -89,7 +91,7 @@ public class GameLoop extends Thread {
 				}
 			}
 		}
-		System.out.println("Player = Win/Lose  = "+ win);
+		gamePanel.gameEnd(true);
 	}
 
 	boolean updateGame()
