@@ -6,6 +6,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
+import com.embo.bubble_shooter_mine.R;
+
 public class GameActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

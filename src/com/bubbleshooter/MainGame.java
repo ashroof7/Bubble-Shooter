@@ -15,6 +15,8 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.embo.bubble_shooter_mine.R;
+
 
 public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 
@@ -42,6 +44,8 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 	Bitmap bubblesResized; 
 	
 	int map[][];
+	int fallingBallsX[];
+	int fallingBallsY[];
 	
 	static final int supportedColors = 5;
 	
@@ -52,6 +56,8 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 	static final int GREEN = 4;
 	Bitmap[] bubbles = new Bitmap[supportedColors]; // scaled bubbles
 	Bitmap[] rawBubbles = new Bitmap[supportedColors]; // colored bubbles just read from files 
+	Bitmap[] fallingBalls = new Bitmap[2];
+	int fallingAnim;
 	
 	
 	boolean isfired = false ;
@@ -112,6 +118,11 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 		bulletLoc 		= new Point((displayDims.x - DIAM)/2, y);
 		bulletColor =  (int) (Math.random()*supportedColors);
 		nextBubble = 0;
+		fallingBallsX = new int[rows*COLS];
+		fallingBallsY = new int[rows*COLS];
+		Arrays.fill(fallingBallsX, -1);
+		Arrays.fill(fallingBallsY, -1);
+		fallingAnim = 0;
 		mainLoopThread.initGame();
 	}
 	
@@ -136,6 +147,8 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 		// scaled images 
 		for (int i = 0; i < supportedColors; i++) 
 			bubbles[i] = Bitmap.createScaledBitmap(rawBubbles[i], DIAM, DIAM, false);
+		fallingBalls[0] = bubbles[1];
+		fallingBalls[1] = bubbles[4];
     } 
     
 	void getNextBubble()
@@ -232,6 +245,17 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 					continue ;
 				else 
 					canvas.drawBitmap(bubbles[map[i][j]],j*DIAM, i*DIAM+shiftMargin,  null);
+		
+		for(int i = 0 ; i < fallingBallsX.length;i++)
+			if(fallingBallsX[i]  >= 0)
+			{
+				canvas.drawBitmap(fallingBalls[fallingAnim],fallingBallsX[i], fallingBallsY[i],  null);
+				fallingBallsX[i] += DIAM/2;
+				fallingBallsY[i] += DIAM/2;
+				if(fallingBallsY[i] >= drawOffset || fallingBallsX[i]  >= displayDims.x)
+					fallingBallsX[i] = -1;
+			}
+		fallingAnim ^= 1;
 		
 		// Draw the next to shoot bubbles
 		for (int i = 0; i < nextBubbleColor.length; i++) 
