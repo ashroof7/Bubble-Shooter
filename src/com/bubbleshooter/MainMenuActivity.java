@@ -11,11 +11,8 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.embo.bubble_shooter_mine.R;
-
 public class MainMenuActivity extends Activity {
 	@Override
-	
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		// to make it Fullscreen

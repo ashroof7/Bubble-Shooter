@@ -8,15 +8,15 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuff.Mode;
+import android.graphics.PorterDuffXfermode;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-
-import com.embo.bubble_shooter_mine.R;
-
 
 public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 
@@ -54,7 +54,9 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 	static final int PINK = 2;
 	static final int PURPLE = 3;
 	static final int GREEN = 4;
+	
 	public static final int LEVELS = 20;
+	
 	Bitmap[] bubbles = new Bitmap[supportedColors]; // scaled bubbles
 	Bitmap[] rawBubbles = new Bitmap[supportedColors]; // colored bubbles just read from files 
 	Bitmap[] fallingBalls = new Bitmap[2];
@@ -68,6 +70,8 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 	// 0 is the next to be fired 
 	int nextBubbleColor[] = new int[3];
 	Point nextBubbleLoc[] = new Point[3];
+	Point scoreLoc;
+	Paint scorePaint ;
 	int nextBubble;
 	
 	
@@ -102,8 +106,7 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 		}
 		for (int i = 0; i < rows-startEmptyRows; i++) 
 			for (int j = 0; j < map[0].length; j++) 
-				map[i][j] =(int) (i%supportedColors); 
-//				map[i][j] =(int) (Math.random()*supportedColors); 
+				map[i][j] =(int) (Math.random()*supportedColors); 
 		
 		// adjust location and color of the 3 next bubbles to shoot
 		int gap = displayDims.x/40;
@@ -118,12 +121,22 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 		bulletInitLoc 	= new Point((displayDims.x - DIAM)/2, y);
 		bulletLoc 		= new Point((displayDims.x - DIAM)/2, y);
 		bulletColor =  (int) (Math.random()*supportedColors);
+		
+		//score location and color
+		scorePaint = new Paint();
+		scorePaint.setColor(getResources().getColor(R.color.score_color));
+		scorePaint.setTextSize(displayDims.x/12);
+		scoreLoc = new Point(displayDims.x/2 + DIAM , drawOffset + (footerHeight*6/10));
+		
+		// falling bubbles init
 		nextBubble = 0;
 		fallingBallsX = new int[rows*COLS];
 		fallingBallsY = new int[rows*COLS];
 		Arrays.fill(fallingBallsX, -1);
 		Arrays.fill(fallingBallsY, -1);
 		fallingAnim = 0;
+		
+		
 		mainLoopThread.initGame();
 	}
 	
@@ -221,13 +234,9 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 			return true ;
 			
 		}
-		else if (event.getAction() == MotionEvent.ACTION_UP){
-			//touch released;
-		}
-		
-		
 		return false;
 	}	
+	
 	
 	@Override
 	protected void onDraw(Canvas canvas) {
@@ -264,6 +273,9 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 		
 		// Draw the bullet bubble
 		canvas.drawBitmap(bubbles[bulletColor], bulletLoc.x,bulletLoc.y, null);
+		
+		//Draw Score 
+		canvas.drawText("Score: "+score, scoreLoc.x, scoreLoc.y,scorePaint);
 	}
 
 }

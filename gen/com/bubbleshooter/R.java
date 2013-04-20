@@ -28,6 +28,7 @@ containing a value of this type.
     }
     public static final class color {
         public static final int black_overlay=0x7f050000;
+        public static final int score_color=0x7f050002;
         public static final int white=0x7f050001;
     }
     public static final class dimen {

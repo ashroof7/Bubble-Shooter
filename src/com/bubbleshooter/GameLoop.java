@@ -7,7 +7,6 @@ import android.media.SoundPool;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
-import com.embo.bubble_shooter_mine.R;
 
 public class GameLoop extends Thread {
 	boolean isRunning;
@@ -28,7 +27,7 @@ public class GameLoop extends Thread {
 	SoundPool soundPool;
 	static int hitSoundID;
 	static int scoreSoundID;
-	static final int SHIFTDOWN = 100;
+	static final int SHIFTDOWN = 900;
 	static int Downperiod = SHIFTDOWN;
 
 	public GameLoop(MainGame game) {
@@ -53,6 +52,7 @@ public class GameLoop extends Thread {
 		Canvas canvas;
 		Log.v("MainThread", "starting the main thread");
 		boolean win = false;
+		
 		while (isRunning)
 		{
 			canvas = null;
@@ -65,7 +65,8 @@ public class GameLoop extends Thread {
 					isRunning = !win;
 					// draws the canvas on the panel
 					gamePanel.onDraw(canvas);
-
+//					sHolder.unlockCanvasAndPost(canvas);
+					
 					if (isRunning && --Downperiod < 0)
 					{
 						// check base row if there's any ball he loses
