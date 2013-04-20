@@ -1,8 +1,5 @@
 package com.bubbleshooter;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
 import android.annotation.SuppressLint;
 import android.graphics.Canvas;
 import android.media.AudioManager;
@@ -10,11 +7,13 @@ import android.media.SoundPool;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
+import com.embo.bubble_shooter_mine.R;
+
 public class GameLoop extends Thread {
 	boolean isRunning;
 	SurfaceHolder sHolder;
 	MainGame gamePanel;
-	Queue<Integer> q;
+	MyQueue q;
 
 	int speedX = 1;
 	int speedY = 1;
@@ -36,13 +35,13 @@ public class GameLoop extends Thread {
 		super();
 		sHolder = game.getHolder();
 		gamePanel = game;
-		q = new LinkedList<Integer>();
 		soundPool = new SoundPool(2, AudioManager.STREAM_MUSIC, 100);
 		hitSoundID = soundPool.load(gamePanel.getContext(), R.raw.ballhit, 1);
 		scoreSoundID = soundPool.load(gamePanel.getContext(), R.raw.score, 1);
 	}
 
 	void initGame() {
+		q = new MyQueue(gamePanel.map.length * gamePanel.map[0].length);
 		neighborCOLS = new int[gamePanel.map.length * gamePanel.map[0].length];
 		neighborROWS = new int[gamePanel.map.length * gamePanel.map[0].length];
 		visited = new boolean[gamePanel.map.length][gamePanel.map[0].length];
@@ -162,7 +161,7 @@ public class GameLoop extends Thread {
 					gamePanel.bulletColor = (int) (Math.random() * MainGame.supportedColors);
 					soundPool.play(hitSoundID, 1, 1, 1, 0, 1f);
 					// flood fill
-					// TODO change this queue and create your own to avoid
+					// change this queue and create your own to avoid
 					// allocation
 					for (int i = 0; i < visited.length; i++)
 						for (int j = 0; j < visited[0].length; j++)
@@ -194,10 +193,17 @@ public class GameLoop extends Thread {
 						}
 					}
 					if (neighborsCount >= 3) {
-						MainGame.score++;
+						MainGame.score+= neighborsCount-2;
 						soundPool.play(scoreSoundID, 1, 1, 1, 0, 1f);
+						int lastFalling = 0;
 						for (int i = 0; i < neighborsCount; i++)
+						{
 							gamePanel.map[neighborROWS[i]][neighborCOLS[i]] = -1;
+							while(gamePanel.fallingBallsX[lastFalling] >= 0)
+								lastFalling++;
+							gamePanel.fallingBallsX[lastFalling] = neighborCOLS[i]*MainGame.DIAM;
+							gamePanel.fallingBallsY[lastFalling] = neighborROWS[i]*MainGame.DIAM + MainGame.shiftMargin;
+						}
 						// check for disconnected bullet
 						for (int i = 0; i < visited.length; i++)
 							for (int j = 0; j < visited[0].length; j++)
