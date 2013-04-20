@@ -50,6 +50,7 @@ public class MainGame extends SurfaceView implements SurfaceHolder.Callback {
 	static final int PINK = 2;
 	static final int PURPLE = 3;
 	static final int GREEN = 4;
+	public static final int LEVELS = 20;
 	Bitmap[] bubbles = new Bitmap[supportedColors]; // scaled bubbles
 	Bitmap[] rawBubbles = new Bitmap[supportedColors]; // colored bubbles just read from files 
 	

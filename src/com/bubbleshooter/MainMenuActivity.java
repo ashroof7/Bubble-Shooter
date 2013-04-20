@@ -29,11 +29,12 @@ public class MainMenuActivity extends Activity {
 		
 		((LinearLayout) findViewById(R.id.main_men_LLayout)).setPadding(0, 0, 0, dims.y/10);
 		
-		final Intent intent = new Intent(MainMenuActivity.this , GameActivity.class);
+		
 		ImageView play = (ImageView) findViewById(R.id.play);
+		final Intent levelChooser = new Intent(MainMenuActivity.this, LevelChooserActivity.class);
 		play.setOnClickListener(new View.OnClickListener() {
 		    public void onClick(View v) {
-		    	startActivity(intent);
+		    	startActivity(levelChooser);
 		    }
 		});
 		
@@ -44,6 +45,8 @@ public class MainMenuActivity extends Activity {
 		    	sound.setBackgroundResource(R.drawable.sound_off);
 		    }
 		});
+		
+		
 		
 	}
 

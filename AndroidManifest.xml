@@ -20,6 +20,7 @@
             android:theme="@style/FullscreenTheme" >
         </activity>
         
+        
         <activity
             android:name="com.bubbleshooter.MainMenuActivity"
             android:configChanges="screenSize"
@@ -29,6 +30,13 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        
+        
+        <activity
+            android:name="com.bubbleshooter.LevelChooserActivity"
+            android:configChanges="screenSize"
+            android:theme="@style/FullscreenTheme" >
         </activity>
         
     </application>

@@ -17,9 +17,18 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
         public static final int buttonBarStyle=0x7f010000;
+        /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int levelIconStyle=0x7f010002;
     }
     public static final class color {
         public static final int black_overlay=0x7f050000;
+        public static final int white=0x7f050001;
     }
     public static final class dimen {
         /**  Default screen margins, per the Android Design guidelines. 
@@ -35,24 +44,28 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int background_1=0x7f020000;
         public static final int green=0x7f020001;
         public static final int ic_launcher=0x7f020002;
-        public static final int logo=0x7f020003;
-        public static final int orange=0x7f020004;
-        public static final int pink=0x7f020005;
-        public static final int play=0x7f020006;
-        public static final int purple=0x7f020007;
-        public static final int red=0x7f020008;
-        public static final int sound_off=0x7f020009;
-        public static final int sound_on=0x7f02000a;
+        public static final int level_icon=0x7f020003;
+        public static final int logo=0x7f020004;
+        public static final int orange=0x7f020005;
+        public static final int pink=0x7f020006;
+        public static final int play=0x7f020007;
+        public static final int purple=0x7f020008;
+        public static final int red=0x7f020009;
+        public static final int sound_off=0x7f02000a;
+        public static final int sound_on=0x7f02000b;
     }
     public static final class id {
         public static final int game_frame=0x7f090000;
-        public static final int main_men_LLayout=0x7f090001;
-        public static final int play=0x7f090002;
-        public static final int sound=0x7f090003;
+        public static final int grid_levels=0x7f090001;
+        public static final int main_men_LLayout=0x7f090002;
+        public static final int play=0x7f090003;
+        public static final int sound=0x7f090004;
     }
     public static final class layout {
         public static final int activity_game=0x7f030000;
-        public static final int activity_main_menu=0x7f030001;
+        public static final int activity_level_chooser=0x7f030001;
+        public static final int activity_main_menu=0x7f030002;
+        public static final int level_icon_options=0x7f030003;
     }
     public static final class raw {
         public static final int ballhit=0x7f040000;
@@ -140,5 +153,32 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
           @attr name android:buttonBarStyle
         */
         public static final int ButtonBarContainerTheme_buttonBarStyle = 0;
+        /** Attributes that can be used with a levelIcon.
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #levelIcon_levelIconStyle com.bubbleshooter:levelIconStyle}</code></td><td></td></tr>
+           </table>
+           @see #levelIcon_levelIconStyle
+         */
+        public static final int[] levelIcon = {
+            0x7f010002
+        };
+        /**
+          <p>This symbol is the offset where the {@link com.bubbleshooter.R.attr#levelIconStyle}
+          attribute's value can be found in the {@link #levelIcon} array.
+
+
+          <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name android:levelIconStyle
+        */
+        public static final int levelIcon_levelIconStyle = 0;
     };
 }
