@@ -6,6 +6,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
+
 public class GameActivity extends Activity {
 	static GameActivity game;
 	

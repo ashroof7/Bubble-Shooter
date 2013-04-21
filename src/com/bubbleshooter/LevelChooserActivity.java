@@ -30,7 +30,8 @@ public class LevelChooserActivity extends Activity {
 		final Intent intent = new Intent(LevelChooserActivity.this , GameActivity.class);
 		levels.setOnItemClickListener(new OnItemClickListener() {
 	        public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-	        	//TODO start a level with number 
+	        	//TODO start a level with number
+	        	MainGame.ROWS = position+1+5;
 		    	startActivity(intent);
 	        }
 	    });

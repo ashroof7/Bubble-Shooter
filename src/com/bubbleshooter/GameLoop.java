@@ -1,6 +1,8 @@
 package com.bubbleshooter;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Canvas;
 import android.media.AudioManager;
 import android.media.SoundPool;
@@ -26,11 +28,61 @@ public class GameLoop extends Thread {
 	SoundPool soundPool;
 	static int hitSoundID;
 	static int scoreSoundID;
-	static final int SHIFTDOWN = 900;
+	static final int SHIFTDOWN = 100;
 	static int Downperiod = SHIFTDOWN;
+
+	Runnable winGame = new Runnable() {
+		@Override
+		public void run() {
+			AlertDialog.Builder builder = new AlertDialog.Builder(
+					gamePanel.getContext());
+			builder.setMessage("Your score is " + gamePanel.score).setTitle(
+					"You Won !!");
+			isRunning = false ;
+
+			builder.setPositiveButton("Next Level",
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							gamePanel.initGame(gamePanel.ROWS+1);
+							gamePanel.surfaceCreated(sHolder);
+						}
+					});
+			builder.setNegativeButton("Cancel",
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							gamePanel.surfaceDestroyed(sHolder);
+						}
+					});
+			AlertDialog dialog = builder.create();
+			dialog.show();
+		}
+	};
+
+	Runnable loseGame = new Runnable() {
+		@Override
+		public void run() {
+			gamePanel.surfaceDestroyed(sHolder);
+			AlertDialog.Builder builder = new AlertDialog.Builder(
+					gamePanel.getContext());
+			builder.setMessage("Your score is " + gamePanel.score)
+				   .setTitle("You Lost !!");
+			
+			builder.setPositiveButton("Retry Level",
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							gamePanel.initGame(gamePanel.ROWS);
+							gamePanel.surfaceCreated(sHolder);
+						}
+					});
+			AlertDialog dialog = builder.create();
+			dialog.show();
+			
+		}
+	};
 
 	public GameLoop(MainGame game) {
 		super();
+
 		sHolder = game.getHolder();
 		gamePanel = game;
 		soundPool = new SoundPool(2, AudioManager.STREAM_MUSIC, 100);
@@ -53,8 +105,7 @@ public class GameLoop extends Thread {
 		boolean win = false;
 		boolean lost = false;
 
-		while (isRunning)
-		{
+		while (isRunning) {
 			canvas = null;
 
 			try {
@@ -65,25 +116,21 @@ public class GameLoop extends Thread {
 					isRunning = !win;
 					// draws the canvas on the panel
 					gamePanel.onDraw(canvas);
-//					sHolder.unlockCanvasAndPost(canvas);
-					
-					if (isRunning && --Downperiod < 0)
-					{
+					// sHolder.unlockCanvasAndPost(canvas);
+
+					if (isRunning && --Downperiod < 0) {
 						// check base row if there's any ball he loses
 						for (int i = 0; i < gamePanel.map[0].length; i++)
-							if (gamePanel.map[MainGame.baseRow][i] != -1)
-							{
+							if (gamePanel.map[MainGame.baseRow][i] != -1) {
 								lost = true;
 								break;
 							}
-						if (!lost)
-						{
+						if (!lost) {
 							MainGame.baseRow--;
 							MainGame.shiftMargin += MainGame.DIAM;
 							Downperiod = SHIFTDOWN;
-						}else
-						{
-							gamePanel.gameEnd(false);
+						} else {
+							gamePanel.post(loseGame);
 						}
 					}
 				}
@@ -93,13 +140,11 @@ public class GameLoop extends Thread {
 				}
 			}
 		}
-		gamePanel.gameEnd(true);
+		gamePanel.post(winGame);
 	}
 
-	boolean updateGame()
-	{
-		if (gamePanel.isfired)
-		{
+	boolean updateGame() {
+		if (gamePanel.isfired) {
 			// update bullet position
 			int newX = gamePanel.bulletLoc.x + speedX;
 			int newY = gamePanel.bulletLoc.y + speedY;
@@ -112,8 +157,7 @@ public class GameLoop extends Thread {
 
 			// check for collision with board borders
 			if (newX + MainGame.DIAM > gamePanel.displayDims.x || newX < 0
-					|| newY < MainGame.shiftMargin)
-			{
+					|| newY < MainGame.shiftMargin) {
 				if (newY < MainGame.shiftMargin) // reached the border of the
 													// board so will stop
 				// the bullet
@@ -197,16 +241,17 @@ public class GameLoop extends Thread {
 						}
 					}
 					if (neighborsCount >= 3) {
-						MainGame.score+= neighborsCount-2;
+						MainGame.score += neighborsCount - 2;
 						soundPool.play(scoreSoundID, 1, 1, 1, 0, 1f);
 						int lastFalling = 0;
-						for (int i = 0; i < neighborsCount; i++)
-						{
+						for (int i = 0; i < neighborsCount; i++) {
 							gamePanel.map[neighborROWS[i]][neighborCOLS[i]] = -1;
-							while(gamePanel.fallingBallsX[lastFalling] >= 0)
+							while (gamePanel.fallingBallsX[lastFalling] >= 0)
 								lastFalling++;
-							gamePanel.fallingBallsX[lastFalling] = neighborCOLS[i]*MainGame.DIAM;
-							gamePanel.fallingBallsY[lastFalling] = neighborROWS[i]*MainGame.DIAM + MainGame.shiftMargin;
+							gamePanel.fallingBallsX[lastFalling] = neighborCOLS[i]
+									* MainGame.DIAM;
+							gamePanel.fallingBallsY[lastFalling] = neighborROWS[i]
+									* MainGame.DIAM + MainGame.shiftMargin;
 						}
 						// check for disconnected bullet
 						for (int i = 0; i < visited.length; i++)
